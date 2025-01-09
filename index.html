@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neon Calculator</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #0f0f0f;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .calculator {
+      background: linear-gradient(145deg, #2e2e2e, #2a2a2a);
+      box-shadow: 5px 5px 10px #79c7e5, -5px -5px 10px #6ec9ed;
+      padding: 20px;
+      border-radius: 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      animation:none;
+    }
+
+    @keyframes backgroundColorChange {
+      0%, 100% { background: linear-gradient(145deg, #55afdc, #1f90c0); }
+      50% { background: linear-gradient(145deg, #4dc5ea, #0c7fa1); }
+    }
+
+    .display {
+      font-size: 2em;
+      padding: 10px;
+      border-radius: 10px;
+      background: #1a1a1a;
+      margin-bottom: 20px;
+      box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #2a2a2a;
+      color: #0fff0f;
+    }
+
+    .datetime {
+      font-size: 1em;
+      padding: 5px;
+      border-radius: 10px;
+      background: #1a1a1a;
+      margin-bottom: 20px;
+      box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #2a2a2a;
+      color: #00f0ff;
+    }
+
+    .message {
+      font-size: 1em;
+      margin: 10px 0;
+      color: #d7ef04;
+      display: none;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .button {
+      padding: 15px;
+      font-size: 1.2em;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(145deg, #1e1e1e, #2c2c2c);
+      box-shadow: 5px 5px 10px #0a0a0a, -5px -5px 10px #363636;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .button:active {
+      box-shadow: inset 5px 5px 10px #0a0a0a, inset -5px -5px 10px #2a2a2a;
+    }
+
+    .button:hover {
+      animation: colorChange 1s infinite;
+    }
+
+    @keyframes colorChange {
+      0%, 100% { background: #4d55f2; }
+      0%, 70% { background: #0dd448; }
+      
+      0%, 50% { background: #03b0db; }
+      
+      0%, 30% { background: #bb25d6; }
+      
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div class="datetime" id="datetime"></div>
+    <div class="display" id="display">0</div>
+    <div class="message" id="message">7 Thala for a reason!</div>
+    <div class="buttons">
+      <button class="button" onclick="appendNumber('7')">7</button>
+      <button class="button" onclick="appendNumber('8')">8</button>
+      <button class="button" onclick="appendNumber('9')">9</button>
+      <button class="button" onclick="chooseOperation('/')">÷</button>
+      <button class="button" onclick="appendNumber('4')">4</button>
+      <button class="button" onclick="appendNumber('5')">5</button>
+      <button class="button" onclick="appendNumber('6')">6</button>
+      <button class="button" onclick="chooseOperation('*')">×</button>
+      <button class="button" onclick="appendNumber('1')">1</button>
+      <button class="button" onclick="appendNumber('2')">2</button>
+      <button class="button" onclick="appendNumber('3')">3</button>
+      <button class="button" onclick="chooseOperation('-')">−</button>
+      <button class="button" onclick="appendNumber('0')">0</button>
+      <button class="button" onclick="clearDisplay()">C</button>
+      <button class="button" onclick="computeResult()">=</button>
+      <button class="button" onclick="chooseOperation('+')">+</button>
+    </div>
+  </div>
+
+  <script>
+    let currentOperand = '';
+    let previousOperand = '';
+    let operation = undefined;
+
+    const display = document.getElementById('display');
+    const datetime = document.getElementById('datetime');
+    const message = document.getElementById('message');
+
+    function updateDateTime() {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+      };
+      datetime.textContent = now.toLocaleDateString('en-US', options);
+    }
+
+    setInterval(updateDateTime, 1000);
+
+    function appendNumber(number) {
+      if (currentOperand.includes('.') && number === '.') return;
+      currentOperand += number;
+      if (number === '7') {
+        showMessage();
+      }
+      updateDisplay();
+    }
+
+    function showMessage() {
+      message.style.display = 'block';
+      setTimeout(() => {
+        message.style.display = 'none';
+      }, 2000);
+    }
+
+    function chooseOperation(op) {
+      if (currentOperand === '') return;
+      if (previousOperand !== '') computeResult();
+      operation = op;
+      previousOperand = currentOperand;
+      currentOperand = '';
+    }
+
+    function computeResult() {
+      let result;
+      const prev = parseFloat(previousOperand);
+      const current = parseFloat(currentOperand);
+      if (isNaN(prev) || isNaN(current)) return;
+      switch (operation) {
+        case '+':
+          result = prev + current;
+          break;
+        case '-':
+          result = prev - current;
+          break;
+        case '*':
+          result = prev * current;
+          break;
+        case '/':
+          result = prev / current;
+          break;
+        default:
+          return;
+      }
+      currentOperand = result;
+      operation = undefined;
+      previousOperand = '';
+      updateDisplay();
+    }
+
+    function clearDisplay() {
+      currentOperand = '';
+      previousOperand = '';
+      operation = undefined;
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      display.textContent = currentOperand || '0';
+    }
+
+    updateDateTime();
+  </script>
+</body>
+</html>
